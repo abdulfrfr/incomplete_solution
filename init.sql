@@ -1,0 +1,2 @@
+CREATE USER abdulfrfr;
+ALTER USER abdulfrfr WITH SUPERUSER;

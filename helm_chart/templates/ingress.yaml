@@ -1,0 +1,36 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ .Values.istio.gateway.name }}
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: {{ .Values.istio.gateway.port.number }}
+      name: {{ .Values.istio.gateway.port.name }}
+      protocol: {{ .Values.istio.gateway.port.protocol }}
+    hosts:
+    - "{{ .Values.istio.gateway.hosts | join "\", \"" }}"
+
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.istio.gateway.virt }}
+spec:
+  hosts:
+  - "{{ .Values.istio.gateway.hosts | join "\", \"" }}"
+  gateways:
+  - {{ .Values.istio.gateway.name }}
+  http:
+  - match:
+    - uri:
+        exact: /
+    route:
+    - destination:
+        host: {{ .Release.Name }}-ruby-app-svc
+        port:
+          number: {{ .Values.service.port }}

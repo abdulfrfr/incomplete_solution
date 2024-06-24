@@ -1,0 +1,44 @@
+# Default values for my-app-chart.
+# You can override these values in your own values.yaml or via --set during helm install or helm upgrade
+image:
+  repository: abdulfrfr/ruby-prod
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+database:
+  host: postgres
+  port: 5432
+  name: my_app
+  username: postgres
+  password: postgres
+  # password: # You can manage passwords securely using Kubernetes secrets
+
+istio:
+  gateway:
+    name: ruby-app-gateway
+    virt: ruby-app-virtual
+    hosts:
+      - "ruby-app"
+    port:
+      number: 80
+      name: http
+      protocol: HTTP
+
+deployment:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2048Mi
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+
+postgres:
+  storage:
+    size: 1Gi
+    storageClassName: manual

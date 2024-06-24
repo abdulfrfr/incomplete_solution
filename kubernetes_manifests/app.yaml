@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ruby-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ruby-app
+  template:
+    metadata:
+      labels:
+        app: ruby-app
+    spec:
+      containers:
+        - resources:
+              limits:
+                cpu: 1000m
+                memory: 2048Mi
+              requests:
+                  cpu: 500m
+                  memory: 1024Mi
+          name: ruby-app
+          image: abdulfrfr/ruby-prod:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_HOST
+              value: postgres
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ruby-svc
+spec:
+  selector:
+    app: ruby-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
